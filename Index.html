@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Phone Lock Controller</title>
+    <meta name="description" content="Control your other phone remotely - Lock/Unlock instantly">
+    <meta name="theme-color" content="#3498db">
+    
+    <!-- Styles & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="icons/icon-96x96.png" type="image/png">
+    
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Lock Controller">
+    <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+    
+    <!-- Android Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <style>
+        /* Quick app-specific styles */
+        .controller-header {
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .qr-code-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        #qrcode {
+            display: inline-block;
+            padding: 10px;
+            background: white;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-dot.connected { background: #2ecc71; }
+        .status-dot.disconnected { background: #e74c3c; }
+        .status-dot.connecting { background: #f39c12; animation: pulse 1.5s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="controller-header">
+            <div class="app-icon">
+                <i class="fas fa-mobile-alt fa-3x"></i>
+            </div>
+            <h1>Phone Lock Controller</h1>
+            <p class="subtitle">Remotely control your other phone</p>
+        </div>
+
+        <!-- Session Management -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-key"></i> Session Control</h2>
+            </div>
+            
+            <div class="connection-status">
+                <span class="status-dot" id="firebaseStatus"></span>
+                <span id="firebaseStatusText">Connecting to Firebase...</span>
+            </div>
+            
+            <div class="session-info">
+                <div class="info-group">
+                    <label><i class="fas fa-fingerprint"></i> Session ID:</label>
+                    <div class="code-box" id="sessionIdDisplay">No active session</div>
+                </div>
+                
+                <div class="info-group">
+                    <label><i class="fas fa-link"></i> Shareable Link:</label>
+                    <div class="link-container">
+                        <input type="text" id="shareLink" readonly placeholder="Generate a session first">
+                        <button onclick="copyShareLink()" class="btn-icon" title="Copy">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button onclick="generateNewSession()" class="btn-primary" id="generateBtn">
+                        <i class="fas fa-plus-circle"></i> Generate New Session
+                    </button>
+                    <button onclick="endCurrentSession()" class="btn-danger" id="endBtn" disabled>
+                        <i class="fas fa-stop-circle"></i> End Session
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- QR Code Generator -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-qrcode"></i> Quick Connect</h2>
+            </div>
+            
+            <div class="qr-code-container">
+                <p>Scan QR code to connect on other phone:</p>
+                <div id="qrcode"></div>
+                <p class="small-text">or click "Generate QR Code"</p>
+                <button onclick="generateQRCode()" class="btn-secondary" id="qrBtn" disabled>
+                    <i class="fas fa-qrcode"></i> Generate QR Code
+                </button>
+            </div>
+        </div>
+
+        <!-- Lock Controls -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-gamepad"></i> Lock Controls</h2>
+            </div>
+            
+            <div class="client-status">
+                <div class="status-badge" id="clientStatusBadge">
+                    <span class="badge disconnected">No Client</span>
+                </div>
+                
+                <div class="lock-controls">
+                    <button onclick="sendLockCommand()" class="btn-lock-large" id="lockBtn" disabled>
+                        <i class="fas fa-lock fa-2x"></i>
+                        <span>LOCK PHONE</span>
+                    </button>
+                    
+                    <button onclick="sendUnlockCommand()" class="btn-unlock-large" id="unlockBtn" disabled>
+                        <i class="fas fa-unlock fa-2x"></i>
+                        <span>UNLOCK PHONE</span>
+                    </button>
+                </div>
+                
+                <div class="client-info">
+                    <p><i class="fas fa-phone"></i> Client Status: <span id="clientStatusText">Disconnected</span></p>
+                    <p><i class="fas fa-shield-alt"></i> Lock State: <span id="lockStateText" class="state-unlocked">Unlocked</span></p>
+                    <p><i class="fas fa-clock"></i> Last Command: <span id="lastCommandTime">Never</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Installation Instructions -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-download"></i> Client Installation</h2>
+            </div>
+            
+            <div class="instructions">
+                <h3>How to install on other phone:</h3>
+                <ol class="install-steps">
+                    <li><strong>Send the link</strong> to your other phone</li>
+                    <li><strong>Open the link</strong> in Chrome/Edge browser</li>
+                    <li><strong>Tap "Install App"</strong> when prompted</li>
+                    <li><strong>Or tap</strong> <i class="fas fa-ellipsis-v"></i> menu → "Add to Home screen"</li>
+                    <li><strong>Open the app</strong> from home screen</li>
+                </ol>
+                
+                <div class="platform-tips">
+                    <div class="tip android">
+                        <i class="fab fa-android"></i>
+                        <strong>Android:</strong> Chrome will prompt to install
+                    </div>
+                    <div class="tip ios">
+                        <i class="fab fa-apple"></i>
+                        <strong>iOS:</strong> Use Safari, tap Share → Add to Home Screen
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-history"></i> Activity Log</h2>
+                <button onclick="clearLog()" class="btn-small">Clear</button>
+            </div>
+            
+            <div class="log-container">
+                <div id="activityLog">
+                    <div class="log-entry info">
+                        <span class="log-time">[System]</span>
+                        <span class="log-text">Controller initialized</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Phone Lock Controller v2.0</p>
+            <p class="small-text">Keep this tab open to maintain control</p>
+            <div class="connection-info">
+                <span id="connectionTime">Connected: Just now</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+    
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+    
+    <!-- App Scripts -->
+    <script src="firebase-config.js"></script>
+    <script src="controller.js"></script>
+    
+    <script>
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initController();
+            
+            // Check for beforeinstallprompt
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallPromotion();
+            });
+        });
+    </script>
+</body>
+</html>

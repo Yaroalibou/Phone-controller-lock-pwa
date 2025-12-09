@@ -1,0 +1,59 @@
+
+## 10. Firebase Rules (`firebase.rules.json`)
+
+```json
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "sessions": {
+      "$sessionId": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChildren(['created', 'status', 'lockState'])",
+        "created": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        },
+        "status": {
+          ".validate": "newData.isString() && ['active', 'ended', 'paused'].includes(newData.val())"
+        },
+        "lockState": {
+          ".validate": "newData.isString() && ['locked', 'unlocked'].includes(newData.val())"
+        },
+        "controller": {
+          "uid": {
+            ".validate": "newData.isString()"
+          },
+          "connected": {
+            ".validate": "newData.isBoolean()"
+          }
+        },
+        "client": {
+          "connected": {
+            ".validate": "newData.isBoolean()"
+          },
+          "clientId": {
+            ".validate": "newData.isString()"
+          }
+        },
+        "commands": {
+          "$commandId": {
+            ".validate": "newData.hasChildren(['type', 'timestamp'])",
+            "type": {
+              ".validate": "newData.isString()"
+            },
+            "timestamp": {
+              ".validate": "newData.isNumber()"
+            }
+          }
+        }
+      }
+    },
+    "users": {
+      "$userId": {
+        ".read": "auth.uid === $userId",
+        ".write": "auth.uid === $userId"
+      }
+    }
+  }
+}

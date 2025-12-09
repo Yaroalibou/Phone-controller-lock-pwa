@@ -41,3 +41,19 @@ Set these rules in Firebase Realtime Database:
     }
   }
 }
+
+# Install Firebase CLI
+npm install -g firebase-tools
+
+# Login
+firebase login
+
+# Initialize
+firebase init hosting
+# Select your project
+# Set public directory as "."
+# Configure as single-page app: No
+# Overwrite index.html: No
+
+# Deploy
+firebase deploy --only hosting

@@ -1,0 +1,23 @@
+{
+  "name": "phone-lock-controller",
+  "version": "2.0.0",
+  "description": "Remote phone lock controller PWA",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'No build step required'",
+    "deploy": "firebase deploy",
+    "serve": "firebase serve",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "pwa",
+    "firebase",
+    "phone-lock",
+    "remote-control"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "firebase-tools": "^11.24.0"
+  }
+}

@@ -2,7 +2,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyD...",
   authDomain: "phone-lock-controller.firebaseapp.com",
-  databaseURL: "https://phone-lock-controller-default-rtdb.firebaseio.com",
+  databaseURL: "https://phonelockcontroller-default-rtdb.firebaseio.com/",
   projectId: "phone-lock-controller",
   storageBucket: "phone-lock-controller.appspot.com",
   messagingSenderId: "1234567890",

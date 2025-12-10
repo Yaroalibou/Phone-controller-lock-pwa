@@ -1,12 +1,25 @@
 // Your Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyD...",
-  authDomain: "phone-lock-controller.firebaseapp.com",
-  databaseURL: "https://phonelockcontroller-default-rtdb.firebaseio.com/",
-  projectId: "phone-lock-controller",
-  storageBucket: "phone-lock-controller.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abc123def456"
+  "auth": {
+    "uid": "1f949b0b-1d31-44e9-ae10-d03369147f3d",
+    "token": {
+      "sub": "1f949b0b-1d31-44e9-ae10-d03369147f3d",
+      "firebase": {
+        "sign_in_provider": "google.com"
+      },
+      "email": "Mdlaures@gmail.com",
+      "email_verified": true,
+      "phone_number": "+233593416186",
+      "name": "Yaro"
+    }
+  },
+  "resource": {
+    "key": "value"
+  },
+  "path": "/phonelockcontroller",
+  "method": "set",
+  "time": "2025-12-10T13:27:16.353Z",
+  "isAdmin": false
 };
 
 // Initialize Firebase
